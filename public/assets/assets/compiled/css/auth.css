@@ -1,0 +1,65 @@
+body {
+    background-color: var(--bs-body-bg);
+}
+
+#auth {
+    height: 100vh;
+    overflow-x: hidden;
+}
+
+#auth #auth-right {
+    height: 100%;
+    background-color: #242134;
+    display: flex; /* Membuat #auth-right menjadi flex container */
+    justify-content: center;
+    align-items: center;
+    z-index: 1; /* Mengatur z-index untuk menempatkan gambar di depan */
+    position: relative; /* Memastikan posisi yang tepat */
+}
+
+#auth #auth-right img {
+    object-fit: cover;
+}
+
+#auth #auth-left {
+    padding: 5rem;
+    z-index: 2; /* Mengatur z-index untuk menempatkan auth-left di depan gambar */
+    position: relative; /* Memastikan posisi yang tepat */
+}
+
+#auth #auth-left .auth-title {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+#auth #auth-left .auth-subtitle {
+    font-size: 1.7rem;
+    line-height: 2.5rem;
+    color: #a8aebb;
+}
+
+#auth #auth-left .auth-logo {
+    margin-bottom: 5rem;
+}
+
+#auth #auth-left .auth-logo img {
+    height: 5rem;
+}
+
+@media screen and (max-width: 1399.9px) {
+    #auth #auth-left {
+        padding: 3rem;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    #auth #auth-left {
+        padding: 5rem;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    #auth #auth-left {
+        padding: 5rem 3rem;
+    }
+}
