@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Exports\BillingExport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Cache;
 use Yajra\DataTables\Facades\DataTables;
 
 class BillingController extends Controller
@@ -17,9 +18,28 @@ class BillingController extends Controller
             return redirect()->route('login');
         }
         $customer = DB::table('customer')->get();
+        $stats = Invoice::join('order', 'invoice.order_id', '=', 'order.id')
+        ->join('customer', 'order.customer_id', '=', 'customer.id')
+        ->join('kontrak', 'order.kontrak_id', '=', 'kontrak.id')
+        ->join('invoice_item', 'invoice.id', '=', 'invoice_item.invoice_id')
+        ->select([
+            DB::raw('SUM(invoice_item.nilai_bayar) as total_harga'),
+            DB::raw('SUM(CASE WHEN invoice.status != "paid" THEN 1 ELSE 0 END) as invoicePendingCount'),
+            DB::raw('SUM(CASE WHEN invoice.status != "paid" THEN invoice_item.nilai_bayar ELSE 0 END) as totalTertunggak'),
+            DB::raw('SUM(CASE WHEN invoice.tgl_jatuh_tempo < CURRENT_DATE() AND invoice.status != "paid" THEN 1 ELSE 0 END) as invoiceJatuhTempoCount'),
+            DB::raw('SUM(CASE WHEN invoice.tgl_jatuh_tempo < CURRENT_DATE() AND invoice.status != "paid" THEN invoice_item.nilai_bayar ELSE 0 END) as invoiceJatuhTempoValue'),
+            DB::raw('SUM(CASE WHEN invoice.status = "paid" AND MONTH(invoice.tgl_invoice) = MONTH(CURRENT_DATE()) AND YEAR(invoice.tgl_invoice) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as invoiceLunasBulanIniCount'),
+            DB::raw('SUM(CASE WHEN invoice.status = "paid" AND MONTH(invoice.tgl_invoice) = MONTH(CURRENT_DATE()) AND YEAR(invoice.tgl_invoice) = YEAR(CURRENT_DATE()) THEN invoice_item.nilai_bayar ELSE 0 END) as pendapatanBulanIni'),
+            DB::raw('COUNT(DISTINCT IF(kontrak.status = "active", customer.id, NULL)) as pelangganAktifCount'),
+            DB::raw('SUM(CASE WHEN invoice.url_bukti_potong_pph IS NULL THEN 1 ELSE 0 END) as invoiceTanpaBuktiPotongCount'),
+            DB::raw('SUM(CASE WHEN invoice.url_faktur IS NULL THEN 1 ELSE 0 END) as invoiceTanpaFakturCount'),
+        ])
+        ->first();
+
         return view('dashboard', [
             'title' => 'Billing',
             'customers' => $customer,
+            'stats' => $stats,
         ]);
     }
     public function ajaxBilling(Request $request)
@@ -46,7 +66,7 @@ class BillingController extends Controller
                         WHEN 3 THEN "Non Wapu dengan PPh"
                         ELSE "-"
                     END as status_perusahaan
-                '),
+                ')
             )
             ->when($request->namaCustomer, function ($query) use ($request) {
                 $query->where('customer.nama', 'like', '%' . $request->namaCustomer . '%');
@@ -103,16 +123,13 @@ class BillingController extends Controller
             'faktur' => 'required|file|mimes:pdf|max:2048',
         ]);
         $invoice = Invoice::findOrFail($request->id);
-        $file = $request->file('faktur');
-
-        // Nama file unik
-        $filename = time() . '_' . $file->getClientOriginalName();
-
-        // Simpan ke folder public/faktur/
-        $file->move(public_path('faktur'), $filename);
+        if($request->file('faktur')){
+            $filePath = $request->file('faktur')->store('uploads', 'public');
+        }
 
         // Simpan path relatif ke DB
-        $invoice->url_faktur = 'faktur/' . $filename;
+        $invoice = Invoice::find($request->id);
+        $invoice->url_faktur = $filePath;
         $invoice->save();
 
         return redirect()->back()->with('success', 'Faktur berhasil diunggah.');
@@ -125,13 +142,12 @@ class BillingController extends Controller
         ]);
 
         $invoice = Invoice::findOrFail($request->id);
-        $file = $request->file('pph');
-        // Nama file unik
-        $filename = time() . '_' . $file->getClientOriginalName();
-        // Simpan ke folder public/bukti_potong/
-        $file->move(public_path('bukti_potong'), $filename);
-        // Simpan path relatif ke DB
-        $invoice->url_bukti_potong_pph = 'bukti_potong/' . $filename;
+        if($request->file('pph')){
+            $filePath = $request->file('pph')->store('uploads', 'public');
+        }
+
+        $invoice = Invoice::find($request->id);
+        $invoice->url_bukti_potong_pph = $filePath;
         $invoice->save();
 
         return redirect()->back()->with('success', 'Bukti potong PPh 23 berhasil diunggah.');

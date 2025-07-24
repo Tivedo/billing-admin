@@ -49,3 +49,5 @@ Route::get('/faktur/{filename}', function ($filename) {
     ]);
 });
 Route::get('export-billing', [BillingController::class, 'exportBilling'])->name('exportBilling');
+Route::get('/admin/dashboard/chart-data', [BillingController::class, 'getChartData'])->name('admin.dashboard.chart-data');
+

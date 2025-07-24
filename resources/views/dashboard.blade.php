@@ -32,6 +32,107 @@
 </style>
 <section class="section p-3">
     <div class="card" id="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total Tertunggak</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        Rp {{ number_format($stats['totalTertunggak'] ?? 0, 0, ',', '.') }}
+                                    </div>
+                                    <small class="text-muted">Dari {{ $stats['invoicePendingCount'] ?? 0 }} invoice</small>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-danger shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Invoice Jatuh Tempo</div>
+                                    <div class="h5 mb-0 font-weight-bold text-danger">
+                                        {{ $stats['invoiceJatuhTempoCount'] ?? 0 }} Invoice
+                                    </div>
+                                    <small class="text-muted">
+                                        Total Rp {{ number_format($stats['invoiceJatuhTempoValue'] ?? 0, 0, ',', '.') }}
+                                    </small>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Pendapatan (Bulan Ini)</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        Rp {{ number_format($stats['pendapatanBulanIni'] ?? 0, 0, ',', '.') }}
+                                    </div>
+                                    <small class="text-muted">Dari {{ $stats['invoiceLunasBulanIniCount'] ?? 0 }} invoice lunas</small>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Pelanggan Aktif</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ $stats['pelangganAktifCount'] ?? 0 }}
+                                    </div>
+                                    <small class="text-muted">Memiliki kontrak aktif</small>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Baris 2: Grafik dan Ringkasan Lainnya --}}
+            <div class="row">
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Status Dokumen & Administrasi</h6>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="small font-weight-bold">Menunggu Pembayaran <span class="float-right">{{ $stats['invoicePendingCount'] ?? 0 }}</span></h4>
+                            <hr>
+                            <h4 class="small font-weight-bold">Menunggu Unggahan Bukti Potong <span class="float-right">{{ $stats['invoiceTanpaBuktiPotongCount'] ?? 0 }}</span></h4>
+                            <hr>
+                            <h4 class="small font-weight-bold">Menunggu Unggahan Faktur Pajak <span class="float-right">{{ $stats['invoiceTanpaFakturCount'] ?? 0 }}</span></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card" id="card">
         <div class="card-header">
             <h5 class="card-title">
                 Billing
@@ -421,6 +522,5 @@
                 })
             </script>
     </div>
-
     </section>
     @endsection
