@@ -139,12 +139,12 @@ class BillingController extends Controller
 
             // 5. Simpan URL lengkap ke database
             $invoice = Invoice::find($request->id);
-            $invoice->url_bukti_potong_pph = $fileUrl;
+            $invoice->url_faktur = $fileUrl;
             $invoice->save();
         }
         // Simpan path relatif ke DB
         $invoice = Invoice::find($request->id);
-        $invoice->url_faktur = $filePath;
+        $invoice->url_faktur = $fileUrl;
         $invoice->save();
 
         return redirect()->back()->with('success', 'Faktur berhasil diunggah.');

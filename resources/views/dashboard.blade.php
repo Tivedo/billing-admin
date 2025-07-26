@@ -480,7 +480,7 @@
                     var selectedOption = $(this).find('option:selected');
                     var fakturUrl = selectedOption.data('faktur-url');
                     //arahin ke tab sebelah buat buka invoice
-                    window.location.href = fakturUrl;
+                    window.open(fakturUrl, '_blank');
                     $(this).val('');
                 }
                 if (selectedValue === 'unduh-bukti-pph') {
