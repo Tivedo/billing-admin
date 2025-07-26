@@ -123,10 +123,25 @@ class BillingController extends Controller
             'faktur' => 'required|file|mimes:pdf|max:2048',
         ]);
         $invoice = Invoice::findOrFail($request->id);
-        if($request->file('faktur')){
-            $filePath = $request->file('faktur')->store('uploads', 'public');
-        }
+        if ($request->file('faktur')) {
+            // 1. Ambil objek file dari request
+            $file = $request->file('faktur');
 
+            // 2. Buat nama file yang unik untuk menghindari nama yang sama
+            // Contoh: invoice_62f1b4e7a8e1b.pdf
+            $filename = 'faktur' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // 3. Pindahkan file ke folder public/faktur
+            $file->move(public_path('faktur'), $filename);
+
+            // 4. Buat URL lengkap menggunakan helper asset()
+            $fileUrl = asset('faktur/' . $filename);
+
+            // 5. Simpan URL lengkap ke database
+            $invoice = Invoice::find($request->id);
+            $invoice->url_bukti_potong_pph = $fileUrl;
+            $invoice->save();
+        }
         // Simpan path relatif ke DB
         $invoice = Invoice::find($request->id);
         $invoice->url_faktur = $filePath;
@@ -142,13 +157,26 @@ class BillingController extends Controller
         ]);
 
         $invoice = Invoice::findOrFail($request->id);
-        if($request->file('pph')){
-            $filePath = $request->file('pph')->store('uploads', 'public');
+         if ($request->file('pph')) {
+            // 1. Ambil objek file dari request
+            $file = $request->file('pph');
+
+            // 2. Buat nama file yang unik untuk menghindari nama yang sama
+            // Contoh: invoice_62f1b4e7a8e1b.pdf
+            $filename = 'buktiPotong_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // 3. Pindahkan file ke folder public/bupot
+            $file->move(public_path('bupot'), $filename);
+
+            // 4. Buat URL lengkap menggunakan helper asset()
+            $fileUrl = asset('bupot/' . $filename);
+
+            // 5. Simpan URL lengkap ke database
+            $invoice = Invoice::find($request->id);
+            $invoice->url_bukti_potong_pph = $fileUrl;
+            $invoice->save();
         }
 
-        $invoice = Invoice::find($request->id);
-        $invoice->url_bukti_potong_pph = $filePath;
-        $invoice->save();
 
         return redirect()->back()->with('success', 'Bukti potong PPh 23 berhasil diunggah.');
     }

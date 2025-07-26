@@ -487,7 +487,7 @@
                     var selectedOption = $(this).find('option:selected');
                     var bupotUrl = selectedOption.data('bupot-url');
                     //arahin ke tab sebelah buat buka invoice
-                    window.location.href = bupotUrl;
+                    window.open(bupotUrl, '_blank');
                     $(this).val('');
                     
                 }
